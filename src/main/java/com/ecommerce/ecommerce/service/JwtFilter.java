@@ -1,22 +1,20 @@
 package com.ecommerce.ecommerce.service;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.ecommerce.ecommerce.security.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.List;
 
-@Component
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -37,12 +35,19 @@ public class JwtFilter extends OncePerRequestFilter {
             String token = authHeader.replace("Bearer ", "");
 
             try {
-                String email = jwtService.validateToken(token);
+                DecodedJWT decodedJWT = jwtService.getDecodedJWT(token);
+
+                String email = decodedJWT.getSubject();
+                List<String> roles = decodedJWT.getClaim("roles").asList(String.class);
+
+                var authorities = roles.stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
 
                 var auth = new UsernamePasswordAuthenticationToken(
                         email,
                         null,
-                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+                        authorities
                 );
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
