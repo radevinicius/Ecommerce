@@ -5,18 +5,22 @@ import com.ecommerce.ecommerce.entity.User;
 import com.ecommerce.ecommerce.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.ecommerce.ecommerce.exception.ResourceNotFoundException;
 
+import java.util.Optional;
 
 
 @Service
 
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public UserResponseDTO create(UserRequestDTO dto) {
@@ -25,7 +29,8 @@ public class UserService {
         User user = new User();
         user.setName(dto.name());
         user.setEmail(dto.email());
-        user.setPassword(dto.password());
+        user.setPassword(passwordEncoder.encode(dto.password())); // criptografa senha
+        user.setRole("USER");
 
         userRepository.save(user);
 
@@ -34,6 +39,10 @@ public class UserService {
                 user.getName(),
                 user.getEmail()
         );
+
+    }
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     public Page<UserResponseDTO> list(Pageable pageable) {
@@ -69,6 +78,8 @@ public class UserService {
 
         userRepository.delete(user);
     }
+
+
 
 
 }
