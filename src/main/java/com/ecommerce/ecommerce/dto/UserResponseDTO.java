@@ -5,7 +5,6 @@ public record UserResponseDTO(
         String name,
         String email
 
-
 ) {
     @Override
     public Long id() {
