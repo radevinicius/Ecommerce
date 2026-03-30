@@ -38,8 +38,14 @@ public class Order {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         if (this.status == null) {
-            this.status = OrderStatus.WAITING_PAYMENT; // Pedido nasce aguardando pagamento
+            this.status = OrderStatus.WAITING_PAYMENT;
         }
+    }
+
+    // Vai lá na classe Order.java e adiciona isso:
+    public void addItem(OrderItem item) {
+        this.items.add(item); // O Pedido adota o Item
+        item.setOrder(this);  // O Item reconhece o Pedido como Pai
     }
 
     public void setId(Long id) {
