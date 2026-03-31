@@ -21,13 +21,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtService jwtService) throws Exception {
 
-        // 🔥 cria o filtro manualmente (evita ciclo)
         JwtFilter jwtFilter = new JwtFilter(jwtService);
 
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/users", "/auth/**").permitAll()
+                        .requestMatchers( "/users", "/auth/**", "/swagger-ui/**", "/v3/api-docs/**","/swagger-ui.html", "/v3/api-docs").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
